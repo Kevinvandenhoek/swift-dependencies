@@ -221,3 +221,39 @@ public struct Unimplemented: Error {
     self.endpoint = endpoint
   }
 }
+
+/// Registers a dependency in the `DependencyValues` framework.
+///
+/// This macro allows you to register a dependency using a simple `#register` syntax, which expands
+/// into a `DependencyValues` extension with a unique dependency key.
+///
+/// ### Example Usage:
+/// ```swift
+/// #register(ProfileStore, RealProfileStore())
+/// ```
+///
+/// Expands to:
+/// ```swift
+/// public extension DependencyValues {
+///     private enum ProfileStoreDependencyKey: DependencyKey {
+///         static var liveValue: ProfileStore = RealProfileStore()
+///     }
+///
+///     var profileStore: ProfileStore {
+///         get { self[ProfileStoreDependencyKey.self] }
+///         set { self[ProfileStoreDependencyKey.self] = newValue }
+///     }
+/// }
+/// ```
+///
+/// This macro simplifies dependency management by reducing boilerplate and enforcing type safety.
+///
+/// - Parameters:
+///   - `protocolType`: The protocol or type to be used as the dependency key.
+///   - `concreteType`: The concrete implementation of the dependency.
+///
+@freestanding(expression)
+public macro register(_ protocolType: Any, _ concreteType: Any) =
+  #externalMacro(
+    module: "DependenciesMacrosPlugin", type: "RegisterMacro"
+  )
