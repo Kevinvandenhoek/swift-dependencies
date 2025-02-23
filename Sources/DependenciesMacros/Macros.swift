@@ -252,7 +252,7 @@ public struct Unimplemented: Error {
 ///   - `protocolType`: The protocol or type to be used as the dependency key.
 ///   - `concreteType`: The concrete implementation of the dependency.
 ///
-@freestanding(expression)
+@freestanding(declaration)
 public macro register(_ protocolType: Any, _ concreteType: Any) =
   #externalMacro(
     module: "DependenciesMacrosPlugin", type: "RegisterMacro"
