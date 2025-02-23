@@ -30,7 +30,7 @@ final class RegisterMacroTests: BaseTestCase {
             private enum BookingStoreDependencyKey: DependencyKey {
                 static var liveValue: BookingStore = RealBookingStore()
             }
-            
+            failed
             var bookingStore: BookingStore {
                 get { self[BookingStoreDependencyKey.self] }
                 set { self[BookingStoreDependencyKey.self] = newValue }

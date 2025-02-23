@@ -4,14 +4,12 @@ import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import SwiftDiagnostics
 
-//@main
-//struct DependencyMacroPlugin: CompilerPlugin {
-//    let providingMacros: [Macro.Type] = [RegisterMacro.self]
-//}
-
-public struct RegisterMacro: ExpressionMacro {
-  public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
-        guard let arguments = node.argumentList.as(TupleExprElementListSyntax.self),
+public struct RegisterMacro: DeclarationMacro {
+  public static func expansion(
+    of node: some FreestandingMacroExpansionSyntax,
+    in context: some MacroExpansionContext
+  ) throws -> [DeclSyntax] {
+        guard let arguments = node.arguments.as(TupleExprElementListSyntax.self),
               arguments.count == 2,
               let protocolType = arguments.first?.expression.as(IdentifierExprSyntax.self)?.identifier.text,
               let concreteType = arguments.last?.expression.as(FunctionCallExprSyntax.self)?.calledExpression.as(IdentifierExprSyntax.self)?.identifier.text
@@ -31,7 +29,7 @@ public struct RegisterMacro: ExpressionMacro {
         }
 
         let dependencyKeyName = "\(protocolType)DependencyKey"
-        let output = """
+        let extensionCode = """
         public extension DependencyValues {
             private enum \(dependencyKeyName): DependencyKey {
                 static var liveValue: \(protocolType) = \(concreteType)()
@@ -43,10 +41,11 @@ public struct RegisterMacro: ExpressionMacro {
             }
         }
         """
-        
-        return ExprSyntax(stringLiteral: output)
+
+        return [DeclSyntax(stringLiteral: extensionCode)]
     }
 }
+
 
 private extension String {
     func prefixLowercased() -> String {
